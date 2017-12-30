@@ -5,16 +5,25 @@ const insertTourHint = require('./message_logs/dynamodb_api').insertTourHint
 
 exports.handler = (event, context, callback) => {
 
+    console.log("======= BEGIN ========")
+    console.log("How many units in array: " + event.Records.length)
+
+    event.Records.forEach((record, index) => {
+      console.log("========== THIS THE " + index + " EVENT ===========")
+      console.log(record.dynamodb)
+    })
+
     if (event && event.Records && event.Records[0] && event.Records[0].dynamodb && event.Records[0].dynamodb.NewImage) {
         console.log("========== DynamoDB Entry ===========")
         console.log(event.Records[0].dynamodb.NewImage)
 
         const DYNAMO_OBJECT = event.Records[0].dynamodb.NewImage
         const ACTION = DYNAMO_OBJECT.ACTION.S
-        if (ACTION === 'SMS_MESSAGE' && DYNAMO_OBJECT.TEXT && DYNAMO_OBJECT.TEXT.S) {
+        if ((ACTION === 'SMS_MESSAGE' || ACTION === 'INITIAL_TOUR_REQUEST' || ACTION === 'INITIAL_MESSAGE') && DYNAMO_OBJECT.TEXT && DYNAMO_OBJECT.TEXT.S) {
             const TEXT = DYNAMO_OBJECT.TEXT.S
             parseForDate(TEXT, DYNAMO_OBJECT)
                 .then((data) => {
+                  if (data.success) {
                     console.log("========== SUCCESS ==========")
                     console.log(data.parsed_date)
                     console.log(data)
@@ -35,7 +44,10 @@ exports.handler = (event, context, callback) => {
                       'GUESSED_DATE': data.parsed_date,
                       'VERIFIED': false,
                     })
-                    callback(null, data);
+                  } else {
+                    console.log("========== NO DATE FOUND ==========")
+                  }
+                  callback(null, data);
                 })
                 .catch((err) => {
                     console.log("========== ERROR ==========")
@@ -55,12 +67,14 @@ const parseForDate = (TEXT, DYNAMO_OBJECT) => {
           res({
             original_object: DYNAMO_OBJECT,
             parsed_date: parsedDate,
+            success: true,
           })
         } else {
           parseForSlangDates(TEXT).then((data) => {
             res({
               original_object: DYNAMO_OBJECT,
-              parsed_date: data,
+              parsed_date: data.message,
+              success: data.success,
             })
           }).catch((err) => {
             rej(err)
@@ -82,9 +96,15 @@ const parseForSlangDates = (TEXT) => {
       }
     })
     if (matchedSlangs.length > 0) {
-      res('Found at least one mention of a slang date: ' + matchedSlangs[0][0])
+      res({
+        success: true,
+        message: 'Found at least one mention of a slang date: ' + matchedSlangs[0][0]
+      })
     } else {
-      rej('No regular dates or slang dates found')
+      res({
+        success: false,
+        message: 'No regular dates or slang dates found'
+      })
     }
   })
   return p
