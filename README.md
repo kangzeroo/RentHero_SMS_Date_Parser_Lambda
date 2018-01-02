@@ -17,7 +17,7 @@ Note that when the human enters the tour date, they must also see the convo hist
 
 # Deployment Instructions
 1. Deploy to AWS Lambda by zipping this entire folder and uploading
-2. Set the trigger to DynamoDB --> 'Communication_Logs' table
+2. Set the trigger to DynamoDB --> 'Communication_Logs' table, batch size --> 10, Starting Position --> Latest
 3. Test the code by manually inserting an SMS Entry into the database. You can use the below as a test (feel free to replace the "TEXT" value with other stuff such as 'thurs' or 'next monday' or 'today at noon' or 'tmrw at 3pm'. See full list of test cases at ./test_dates.js)
 
 Test Entry for DynamoDB 'Communication_Logs' table:<br/>

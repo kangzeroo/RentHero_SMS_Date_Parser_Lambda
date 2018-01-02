@@ -19,7 +19,7 @@ exports.handler = (event, context, callback) => {
 
         const DYNAMO_OBJECT = event.Records[0].dynamodb.NewImage
         const ACTION = DYNAMO_OBJECT.ACTION.S
-        if ((ACTION === 'SMS_MESSAGE' || ACTION === 'INITIAL_TOUR_REQUEST' || ACTION === 'INITIAL_MESSAGE') && DYNAMO_OBJECT.TEXT && DYNAMO_OBJECT.TEXT.S) {
+        if ((ACTION === 'FORWARDED_MESSAGE' || ACTION === 'INITIAL_TOUR_REQUEST' || ACTION === 'INITIAL_MESSAGE') && DYNAMO_OBJECT.TEXT && DYNAMO_OBJECT.TEXT.S) {
             const TEXT = DYNAMO_OBJECT.TEXT.S
             parseForDate(TEXT, DYNAMO_OBJECT)
                 .then((data) => {
@@ -122,4 +122,7 @@ const slangDates = [
   { alias: 'visit' },
   { alias: 'see the place' },
   { alias: 'take a look' },
+  { alias: 'cancel' },
+  { alias: 'schedule' },
+  { alias: 'reschedule' },
 ]
