@@ -40,6 +40,7 @@ exports.handler = (event, context, callback) => {
                       'RECEIVER_CONTACT_ID': DYNAMO_OBJECT.RECEIVER_CONTACT_ID.S || 'NONE',
 
                       'TEXT': DYNAMO_OBJECT.TEXT.S || 'NONE',
+                      'MEDIUM': DYNAMO_OBJECT.MEDIUM.S || 'NONE',
 
                       'GUESSED_DATE': data.parsed_date,
                       'VERIFIED': false,
